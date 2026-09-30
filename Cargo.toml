@@ -1,0 +1,12 @@
+[package]
+name = "seesongs"
+version = "0.1.0"
+authors = ["James Edwards-Jones <git@jamedjo.co.uk>"]
+edition = "2021"
+description = "Floating window for the song playing, with synced lyrics from LRCLIB"
+
+[dependencies]
+dioxus = { version = "0.7", features = ["desktop"] }
+tokio = { version = "1", features = ["process", "time"] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }

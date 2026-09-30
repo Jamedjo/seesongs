@@ -1,0 +1,139 @@
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0d1420;
+    overflow: hidden;
+    user-select: none;
+}
+
+.card {
+    box-sizing: border-box;
+    height: 100vh;
+    padding: 14px 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: "Inter", "Ubuntu Nerd Font", sans-serif;
+    color: #dce9fb;
+}
+
+.card.idle {
+    align-items: center;
+    justify-content: center;
+    color: #94abcd;
+}
+
+.card.paused { opacity: 0.55; }
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.toggle {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    padding: 7px;
+    border: none;
+    border-radius: 50%;
+    background: #1d2a3d;
+    fill: #dce9fb;
+    cursor: pointer;
+}
+
+.toggle:hover { background: #2a3b54; fill: #ffb14d; }
+
+.toggle svg { width: 100%; height: 100%; display: block; }
+
+.title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f2f7ff;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.artist {
+    font-size: 12px;
+    color: #a8bedd;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.lyrics {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 0;
+}
+
+.line {
+    flex: none;
+    min-height: 1.25em;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #b8cae4;
+}
+
+.line.now {
+    white-space: normal;
+    font-size: 19px;
+    font-weight: 600;
+    color: #ffb14d;
+}
+
+
+.lyrics.note {
+    align-items: center;
+    color: #94abcd;
+    font-size: 13px;
+}
+
+.progress {
+    height: 3px;
+    border-radius: 2px;
+    background: #1d2a3d;
+}
+
+.progress .fill {
+    height: 100%;
+    border-radius: 2px;
+    background: #ffb14d;
+}
+
+/* Layouts for short windows; the heights here are mirrored in Layout. */
+.card.inline { padding: 8px 14px; gap: 6px; }
+.card.bar { padding: 3px 10px; gap: 2px; }
+
+.inline .meta,
+.bar .meta { flex-direction: row; align-items: baseline; gap: 8px; }
+
+.inline .title { font-size: 13px; flex: 0 1 auto; }
+.inline .artist { font-size: 12px; flex: 1 1 0; }
+.inline .toggle { width: 26px; height: 26px; padding: 5px; }
+
+.bar .title { font-size: 12px; flex: 0 1 auto; }
+.bar .artist { font-size: 11px; flex: 1 1 0; }
+.bar .toggle { width: 20px; height: 20px; padding: 4px; }
+.bar .line.now { font-size: 14px; white-space: nowrap; }
+.bar .lyrics.note { font-size: 12px; }
+
+.inline .progress,
+.bar .progress { height: 2px; }
