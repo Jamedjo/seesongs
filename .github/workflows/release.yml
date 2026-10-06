@@ -1,0 +1,98 @@
+name: Release
+
+# Every push to main builds the AppImage, kept as a workflow artifact. A v* tag also publishes it
+# as a GitHub release, which installed AppImages update from.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - packaging/**
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  package:
+    name: Package (Linux)
+    # The oldest supported Ubuntu, so the AppImage runs on distributions with older glibc.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libayatana-appindicator3-dev libxdo-dev libsoup-3.0-dev librsvg2-bin squashfs-tools zstd
+          tools="$RUNNER_TEMP/linuxdeploy"
+          mkdir -p "$tools"
+          curl -sSLf -o "$tools/linuxdeploy" \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          curl -sSLf -o "$tools/linuxdeploy-plugin-gtk.sh" \
+            https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+          chmod +x "$tools"/*
+          echo "$tools" >> "$GITHUB_PATH"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      # vpk builds the AppImage, at the version of the velopack crate the app uses.
+      - name: Install vpk
+        run: |
+          version=$(cargo pkgid velopack | sed 's/.*[#@]//')
+          dotnet tool install --global vpk --version "$version"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Package
+        run: packaging/linux/appimage.sh
+        env:
+          # Read the latest release to make an update from.
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # The AppImage, and what AppImages update from.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux
+          path: |
+            target/release/velopack/seesongs-x86_64.AppImage
+            target/release/velopack/*.nupkg
+            target/release/velopack/releases.linux.json
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # The package carries the crate's version, which installed copies compare to update.
+      - name: Check the tag matches the crate's version
+        run: |
+          version=$(cargo pkgid | sed 's/.*[#@]//')
+          [ "$GITHUB_REF_NAME" = "v$version" ] ||
+            { echo "::error::$GITHUB_REF_NAME doesn't match the crate's version, $version"; exit 1; }
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" dist/*
+          --repo "$GITHUB_REPOSITORY" --title "seesongs $GITHUB_REF_NAME" --generate-notes

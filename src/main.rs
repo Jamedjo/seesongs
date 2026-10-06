@@ -1,3 +1,5 @@
+mod installed;
+mod launcher;
 mod pace;
 #[cfg(test)]
 mod screenshots;
@@ -116,6 +118,12 @@ struct LrclibTrack {
 }
 
 fn main() {
+    installed::run_installer_step();
+    installed::keep_up_to_date();
+    if let Some(launcher) = launcher::Launcher::from_env() {
+        launcher.start();
+    }
+
     let window = WindowBuilder::new()
         .with_title("Now Playing")
         .with_inner_size(LogicalSize::new(460.0, 230.0))
@@ -139,14 +147,16 @@ fn app() -> Element {
         w.inner_size().to_logical::<f64>(w.scale_factor()).height
     });
 
-    use_wry_event_handler(move |event, _| {
-        if let Event::WindowEvent {
+    use_wry_event_handler(move |event, _| match event {
+        Event::WindowEvent {
             event: WindowEvent::Resized(size),
             ..
-        } = event
-        {
-            height.set(size.to_logical::<f64>(window().scale_factor()).height);
-        }
+        } => height.set(size.to_logical::<f64>(window().scale_factor()).height),
+        Event::WindowEvent {
+            event: WindowEvent::CloseRequested,
+            ..
+        } => installed::update_on_close(),
+        _ => {}
     });
 
     use_future(move || async move {
@@ -328,10 +338,20 @@ fn render_lines(lines: &[&str], now: Option<usize>, side: usize) -> Element {
     }
 }
 
+/// The system's playerctl, without the AppImage's libraries, which can be
+/// older than the ones it was built against.
+fn playerctl() -> tokio::process::Command {
+    let mut command = tokio::process::Command::new("playerctl");
+    if std::env::var_os("APPIMAGE").is_some() {
+        command.env_remove("LD_LIBRARY_PATH");
+    }
+    command
+}
+
 /// Targets the player on screen, not playerctl's default pick.
 fn play_pause(player: String) {
     spawn(async move {
-        let _ = tokio::process::Command::new("playerctl")
+        let _ = playerctl()
             .args(["-p", &player, "play-pause"])
             .status()
             .await;
@@ -341,7 +361,7 @@ fn play_pause(player: String) {
 /// The playing player wins; failing that, a paused one, so the window holds
 /// its place through a pause.
 async fn poll_players() -> Option<Track> {
-    let out = tokio::process::Command::new("playerctl")
+    let out = playerctl()
         .args(["-a", "metadata", "--format", FORMAT])
         .output()
         .await
