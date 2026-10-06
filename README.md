@@ -33,7 +33,33 @@ Down to a 50px bar with only the current line:
 - Failing that, lines are spread evenly over the track.
 - Tracks marked instrumental say so.
 
-## Requirements
+## Installing
+
+Download `seesongs-x86_64.AppImage` from the
+[latest release](https://github.com/Jamedjo/seesongs/releases/latest), make it
+executable and run it. It needs `playerctl` (`sudo apt install playerctl`).
+
+The first time it runs, it adds itself to the app launcher, unless
+AppImageLauncher or Gear Lever has added it already. Removing it from the
+launcher is respected. It looks for a newer release every few hours, downloads
+it in the background, and replaces itself with it when the window closes, or
+else the next time it starts.
+
+## Releasing
+
+Every push to `main` builds the AppImage as a workflow artifact, and a `v*`
+tag publishes it as a GitHub release, which installed copies update from:
+
+```
+scripts/release.sh 0.2.0        # raises the version, for a release pull request
+scripts/release.sh --tag 0.2.0  # once that's merged, tags main and pushes the tag
+```
+
+The tag has to match the crate's version, since installed copies compare it to
+decide whether to update. `packaging/linux/appimage.sh` builds the AppImage
+with [Velopack](https://velopack.io).
+
+## Building from source
 
 - `playerctl`
 - Rust, plus the Dioxus desktop libraries. On Debian and Ubuntu:

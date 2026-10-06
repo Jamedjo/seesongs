@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=seesongs
+Comment=Floating window for the song playing, with synced lyrics
+Exec=seesongs
+Icon=uk.co.jamedjo.seesongs
+Categories=AudioVideo;Audio;Player;
+Keywords=lyrics;music;now playing;mpris;
+StartupWMClass=seesongs

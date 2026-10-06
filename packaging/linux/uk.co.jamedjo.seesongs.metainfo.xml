@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>uk.co.jamedjo.seesongs</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>seesongs</name>
+  <summary>Floating window for the song playing, with synced lyrics</summary>
+  <description>
+    <p>
+      A small floating window showing the song that's playing, with its lyrics in time. It reads
+      the current track from any MPRIS player and fetches lyrics from LRCLIB.
+    </p>
+  </description>
+  <launchable type="desktop-id">uk.co.jamedjo.seesongs.desktop</launchable>
+  <icon type="stock">uk.co.jamedjo.seesongs</icon>
+  <developer id="uk.co.jamedjo">
+    <name>James Edwards-Jones</name>
+  </developer>
+  <url type="homepage">https://github.com/Jamedjo/seesongs</url>
+  <url type="bugtracker">https://github.com/Jamedjo/seesongs/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/Jamedjo/seesongs/main/screenshots/window.png</image>
+    </screenshot>
+  </screenshots>
+  <provides>
+    <binary>seesongs</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+</component>
