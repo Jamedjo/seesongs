@@ -1,4 +1,6 @@
 mod pace;
+#[cfg(test)]
+mod screenshots;
 
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
@@ -199,13 +201,19 @@ fn app() -> Element {
         };
     };
 
+    let lyrics = lyrics.read();
+    card(&t, &lyrics, height())
+}
+
+/// The window's contents for a track, laid out for a window `height` tall.
+fn card(t: &Track, lyrics: &Lyrics, height: f64) -> Element {
     let progress = if t.length > 0.0 {
         (t.position / t.length * 100.0).min(100.0)
     } else {
         0.0
     };
 
-    let layout = Layout::for_height(height());
+    let layout = Layout::for_height(height);
 
     rsx! {
         style { {STYLE} }
@@ -214,7 +222,7 @@ fn app() -> Element {
             div { class: "head",
                 div { class: "meta",
                     span { class: "title", "{t.title}" }
-                    if let Some(byline) = byline(&t) {
+                    if let Some(byline) = byline(t) {
                         span { class: "artist", "{byline}" }
                     }
                 }
@@ -236,7 +244,7 @@ fn app() -> Element {
             div { class: "progress",
                 div { class: "fill", style: "width: {progress}%" }
             }
-            {render_lyrics(&lyrics.read(), t.position, t.length, side_lines(layout, height()))}
+            {render_lyrics(lyrics, t.position, t.length, side_lines(layout, height))}
         }
     }
 }
