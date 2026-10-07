@@ -1,6 +1,6 @@
 [package]
 name = "seesongs"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["James Edwards-Jones <git@jamedjo.co.uk>"]
 edition = "2021"
 description = "Floating window for the song playing, with synced lyrics from LRCLIB"
